@@ -1,31 +1,35 @@
 import { Router } from 'express'
-import { UsersService } from '~/resources/users/users.service'
-import { BadRequestException, NotFoundException } from '~/utils/exceptions'
-import { User } from '~/config'
 import { authenticateToken } from '~/middlewares/authenticateToken'
+import { UsersService } from '~/resources/users/users.service'
 
 
 require('dotenv').config()
 const bcrypt = require('bcrypt')
 const UsersController = Router()
 
+UsersController.get('/', async (_req, res) => {
+    const users = await service.findAll()
+
+    if (!users) return res.status(404).send('Aucun utilisateur trouvé')
+
+    return res.status(200).json(users)
+})
 
 // Route pour la page de profil de l'utilisateur connecté
 
 UsersController.get('/profile', authenticateToken, async (req, res) => {
-    return res.status(200).json(await User.findOne({ where: { email: User.email } }))
+    const user = await service.findOne(req.body.id)
+
+    if (!user) return res.status(404).send('Utilisateur introuvable')
+
+    return res.status(200).json(user)
 })
 
 // Route pour l'inscription
 
-UsersController.get('/profile', async (req, res) => {
-    res.json(await User.findOne({ where: { email: User.email } }))
-})
-
-UsersController.post('/register', async (req, res) => {
+UsersController.post('/signup', async (req, res) => {
     try {
-
-        const salt = await bcrypt.genSalt()
+        const salt = await bcrypt.genSalt() //TODO top
         const hashedPassword = await bcrypt.hash(req.body.password, salt)
 
         const user: object = {
@@ -36,9 +40,9 @@ UsersController.post('/register', async (req, res) => {
             description: req.body.description
         }
 
-        return res.status(200).json(await service.CreateUser(user))
+        return res.status(200).json(await service.createUser(user))
 
-    } catch {
+    } catch (error) {
         res.status(500).send("Informations invalides")
     }
 })
@@ -46,12 +50,14 @@ UsersController.post('/register', async (req, res) => {
 // Route pour que l'utilisateur se connecte (vérification mdp et token)
 
 UsersController.post('/login', async (req, res) => {
-    const user = await User.findOne({ where: { email: req.body.email } })
+    const user = await service.findOne(req.body.id)
+
     if (user == null) {
         return res.status(400).send('Utilisateur introuvable')
     }
+
     try {
-        return res.status(200).json(await service.LoginUser(req, res, user))
+        return res.status(200).json(await service.loginUser(user))
     } catch {
         res.status(500).send('Opération échouée')
     }
@@ -60,7 +66,6 @@ UsersController.post('/login', async (req, res) => {
 // Route pour la modification des données de l'utilisateur
 
 UsersController.post('/update', authenticateToken, async (req, res) => {
-
     const user = {
         email: req.body.email,
     }
@@ -72,13 +77,7 @@ UsersController.post('/update', authenticateToken, async (req, res) => {
     }
 })
 
-/**
- * Instance de notre service
- */
 const service = new UsersService()
 
-
-/**
- * On exporte notre controller pour l'utiliser dans `src/index.ts`
- */
 export { UsersController }
+

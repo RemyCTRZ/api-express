@@ -1,11 +1,11 @@
 require('dotenv').config()
 import cors from 'cors'
 import express from 'express'
-import { config } from '~/config'
-import { UsersController } from '~/resources/users/users.controller'
-import { AdminsController } from '~/resources/users/admins.controller'
 import { ExceptionsHandler } from '~/middlewares/exceptions.handler'
 import { UnknownRoutesHandler } from '~/middlewares/unknownRoutes.handler'
+import { AdminsController } from '~/resources/users/admins.controller'
+import { UsersController } from '~/resources/users/users.controller'
+import { sequelize } from './sequelize'
 
 const app = express()
 
@@ -27,4 +27,4 @@ app.all('*', UnknownRoutesHandler)
 
 app.use(ExceptionsHandler)
 
-app.listen(config.API_PORT, () => console.log('Silence, ça tourne.'))
+app.listen(sequelize.API_PORT, () => console.log('Silence, ça tourne.'))

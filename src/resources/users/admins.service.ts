@@ -1,8 +1,7 @@
-import { User } from '~/config'
-import { NotFoundException } from '~/utils/exceptions'
+import { User } from '../../sequelize';
 
-export class AdminsService {
-    async FindAll() {
+export class AdminsService { //TODO en fait c'est pas un service mais plutôt un repo, j'y vois pas vraiment de logique métier
+    async FindAll() { //minuscule
         const users = await User.findAll();
         return users
     }
@@ -19,7 +18,7 @@ export class AdminsService {
 
     DeleteUser(id: number) {
         return User.destroy({
-            id: id, 
+            id: id,
         })
     }
 }

@@ -1,9 +1,7 @@
 import { Response } from "express"
+import jwt from 'jsonwebtoken'
 
-const jwt = require('jsonwebtoken')
 require('dotenv').config()
-
-// Vérifie que le token est valide
 
 export function authenticateToken(req: any, res: Response, next: Function) {
     const authHeader = req.headers['authorization']
@@ -12,16 +10,18 @@ export function authenticateToken(req: any, res: Response, next: Function) {
     try {
         if (token == null) return res.sendStatus(401)
 
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err: any, user: object) => {
+        const secret = process.env.ACCESS_TOKEN_SECRET;
+        if (!secret) {
+            return res.sendStatus(500)
+        }
 
-            if (err) return res.sendStatus(403)
+        jwt.verify(token, secret, (err: any, user: any) => {
 
+            if (err) return res.sendStatus(401)
             req.user = user
-
             next()
         })
-
-    } catch (e) {
-        console.log(e)
+    } catch (error) {
+        console.log(error)
     }
 }

@@ -1,39 +1,31 @@
-import { Request, Response } from 'express'
+import { User } from '~/sequelize'
 import { Users } from '../../../types/users'
-import { User } from '~/config'
-import { NotFoundException } from '~/utils/exceptions'
-
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
 
 export class UsersService {
 
-  async FindOne(id: number) {
-    const users = await User.findByPk(id);
-    return users
-  }
-
-  async CreateUser(user: object) {
-    await User.create({ ...user },
-      { fields: ['name', 'firstName', 'email', 'password', 'description'] })
-  }
-
-  async LoginUser(req: Request, res: Response, user: Partial<Users>) {
-    if (await bcrypt.compare(req.body.password, user.password)) {
-      const userEmail = req.body.email
-      const accessToken = generateAccessToken(userEmail)
-
-      function generateAccessToken(user: object) {
-        return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-      }
-
-      res.json({ accessToken: accessToken })
-    } else {
-      res.send('Connexion refusée')
+    async findAll() {
+        const users = await User.findAll()
+        return users
     }
-  }
 
-  async UpdateUser(user: object) {
-    await User.update({ user }, { where: { email: User.email } })
-  }
+    async findOne(id: number) {
+        const user = await User.findByPk(id)
+        return user
+    }
+
+    async createUser(user: Partial<Users>) {
+        await User.create(user, {
+            fields: ['name', 'firstName', 'email', 'password', 'description']
+        })
+    }
+
+    async loginUser(user: Partial<Users>) {
+        await User.login(user, {
+            fields: ['email', 'password']
+        })
+    }
+
+    async UpdateUser(user: Partial<Users>) {
+        await User.update({ user }, { where: { email: User.email } })
+    }
 }
