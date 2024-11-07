@@ -1,28 +1,36 @@
 import { Router } from 'express'
+import jwt from 'jsonwebtoken'
 import { authenticateToken } from '~/middlewares/authenticateToken'
 import { UsersService } from '~/resources/users/users.service'
-
 
 require('dotenv').config()
 const bcrypt = require('bcrypt')
 const UsersController = Router()
 
 UsersController.get('/', async (_req, res) => {
-    const users = await service.findAll()
+    try {
+        const users = await service.findAll()
 
-    if (!users) return res.status(404).send('Aucun utilisateur trouvé')
+        if (!users) return res.status(404).send('Aucun utilisateur trouvé')
 
-    return res.status(200).json(users)
+        return res.status(200).json(users)
+    } catch (error) {
+        res.status(500).send('Erreur serveur')
+    }
 })
 
 // Route pour la page de profil de l'utilisateur connecté
 
 UsersController.get('/profile', authenticateToken, async (req, res) => {
-    const user = await service.findOne(req.body.id)
+    try {
+        const user = await service.findOne(req.body.id)
 
-    if (!user) return res.status(404).send('Utilisateur introuvable')
+        if (!user) return res.status(404).send('Utilisateur introuvable')
 
-    return res.status(200).json(user)
+        return res.status(200).json(user)
+    } catch (error) {
+        res.status(500).send('Erreur serveur')
+    }
 })
 
 // Route pour l'inscription
@@ -50,14 +58,28 @@ UsersController.post('/signup', async (req, res) => {
 // Route pour que l'utilisateur se connecte (vérification mdp et token)
 
 UsersController.post('/login', async (req, res) => {
-    const user = await service.findOne(req.body.id)
-
-    if (user == null) {
-        return res.status(400).send('Utilisateur introuvable')
-    }
+    const { email, password } = req.body
 
     try {
-        return res.status(200).json(await service.loginUser(user))
+
+        const user = await service.findOneByEmail(email)
+
+        if (!user) {
+            return res.status(400).send('Utilisateur introuvable')
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+        if (!isPasswordValid) {
+            return res.status(400).send('Mot de passe incorrect')
+        }
+
+        const secret = process.env.ACCESS_TOKEN_SECRET
+        if (!secret) {
+            return res.status(500).send('Erreur serveur')
+        }
+
+        const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' })
+        return res.status(200).json({ token })
     } catch {
         res.status(500).send('Opération échouée')
     }

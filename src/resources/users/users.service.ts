@@ -13,6 +13,11 @@ export class UsersService {
         return user
     }
 
+    async findOneByEmail(email: string) {
+        const user = await User.findOne({ where: { email: email } })
+        return user
+    }
+
     async createUser(user: Partial<Users>) {
         await User.create(user, {
             fields: ['name', 'firstName', 'email', 'password', 'description']
