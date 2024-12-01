@@ -1,36 +1,53 @@
-GET http://localhost:3001/users
+GET http://localhost:3001/user
 
 ###
 
-POST http://localhost:3001/users
+POST http://localhost:3001/user
 Content-Type: application/json
 
 {
     "name": "Cottrez",
-    "surname": "Rémy",
-    "email": "remycottrez@gmail.com",
-    "password": "test",
+    "firstName": "Rémy",
+    "email": "remy@c.fr",
+    "password": "test123",
     "description": "description test"
 }
 
 ###
 
-POST http://localhost:3001/users/login
+POST http://localhost:3001/admin/login
 Content-Type: application/json
 
 {
-    "name": "Cottrez",
-    "surname": "Rémy",
     "email": "remycottrez@gmail.com",
-    "password": "test",
-    "description": "description test"
+    "password": "test"
+}
+
+### 
+
+POST http://localhost:3001/user/update
+Content-Type: application/json
+
+{
+    "email": "remycottrez@gmail.com",
+    "name": "CottrezTest"
 }
 
 ###
 
-POST http://localhost:3001/users/login
+GET http://localhost:3001/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoicmVteWNvdHRyZXpAZ21haWwuY29tIiwiaWF0IjoxNjY1MDQ1NDkwfQ.gU4mGfNULu9HpnALxWp07pyxz44jZuML5rEYjQ_boaA
+
+###
+
+POST http://localhost:3001/user/signup
 Content-Type: application/json
 
 {
-    "email": "remycottrez@gmail.com"
+    "name": "Cottrez",
+    "firstName": "Rémy",
+    "birthDate": '26-02-1998',
+    "email": "remycottrez@gmail.com",
+    "password": "password123",
+    "description": "C'est ma description j'ai pété les plombs sans abandonner ni baisser les bras"
 }

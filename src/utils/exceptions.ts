@@ -1,5 +1,8 @@
 import { ApiException } from '~~/types/exceptions'
 
+
+//nom de fichier dupliqué, ça peut causer des emmerdes, notamment avec git
+
 /**
  * Classe générique qui sert à créer des erreurs HTTP (ici 400 et 404)
  *

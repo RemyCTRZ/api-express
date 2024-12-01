@@ -10,26 +10,19 @@ import { NextFunction, Request, Response } from 'express'
  *
  * @see https://expressjs.com/en/guide/error-handling.html
  */
+
 export const ExceptionsHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    /**
-     * Voir "The default error handler" dans la doc officielle indiquée plus haut
-     */
+
     if (res.headersSent) {
         return next(err)
     }
 
-    /**
-     * Si c'est le cas, on sait que c'est notre propre erreur
-     */
     if (err.status && err.error) {
         return res
             .status(err.status)
-            .json({ error: err.error })
+            .json({ error: err.error }) //faut vraiment être sûr de jamais renvoyer une stacktrace
     }
 
-    /**
-     * Dans les autres cas, on retourne une 500
-     */
     return res
         .status(500)
         .json({ error: 'Erreur interne' })
